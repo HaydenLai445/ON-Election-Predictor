@@ -1,0 +1,11 @@
+flask==3.0.1
+flask-login==0.6.3
+python-dotenv==1.0.0
+werkzeug==3.0.1
+streamlit==1.30.0
+plotly==5.18.0  # for interactive charts in Streamlit
+pytest==7.4.4  # for testing
+pandas==2.1.4
+numpy==1.26.2
+scikit-learn==1.3.2
+matplotlib==3.8.1
