@@ -14,7 +14,7 @@ from streamlit.components.v1 import html
 import plotly.graph_objects as go
 import plotly.express as px
 import joblib
-from sklearn.dummy import DummyRegressor
+from sklearn.ensemble import RandomForestRegressor
 import io
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
@@ -359,24 +359,20 @@ if st.session_state.logged_in:
                 st.session_state.models = joblib.load(models_path)
                 print("Models loaded successfully from:", models_path)
             else:
-                # Create a simple fallback model if the file doesn't exist
-                st.warning("Trained models not found. Using fallback models.")
-                
-                # Create and FIT dummy models
-                X_dummy = [[0.3] for _ in range(124)]  # Dummy features
+                # Create and FIT Random Forest fallback models
+                X_dummy = [[0.3] * 5 for _ in range(124)]  # 5 dummy features matching expected input shape
                 y_dummy = [0.01 * (i % 3) for i in range(124)]  # Dummy swings
-                
+
                 st.session_state.models = {
-                    "Swing_PC": DummyRegressor(strategy="mean").fit(X_dummy, y_dummy),
-                    "Swing_NDP": DummyRegressor(strategy="mean").fit(X_dummy, y_dummy),
-                    "Swing_Liberal": DummyRegressor(strategy="mean").fit(X_dummy, y_dummy),
-                    "Swing_Green": DummyRegressor(strategy="mean").fit(X_dummy, y_dummy),
-                    "Swing_Other": DummyRegressor(strategy="mean").fit(X_dummy, y_dummy)
+                    "Swing_PC": RandomForestRegressor(n_estimators=100, random_state=42).fit(X_dummy, y_dummy),
+                    "Swing_NDP": RandomForestRegressor(n_estimators=100, random_state=42).fit(X_dummy, y_dummy),
+                    "Swing_Liberal": RandomForestRegressor(n_estimators=100, random_state=42).fit(X_dummy, y_dummy),
+                    "Swing_Green": RandomForestRegressor(n_estimators=100, random_state=42).fit(X_dummy, y_dummy),
+                    "Swing_Other": RandomForestRegressor(n_estimators=100, random_state=42).fit(X_dummy, y_dummy)
                 }
-                
-                os.makedirs(os.path.dirname(models_path), exist_ok=True)
-                joblib.dump(st.session_state.models, models_path)
-                print("Created and saved fallback models at:", models_path)
+
+                # Update the warning message:
+                st.warning("Trained models not found. Using fallback Random Forest models.")
 
         except Exception as e:
             st.error(f"Critical error loading models: {str(e)}")
