@@ -28,7 +28,19 @@ from scripts.load_data import (
     update_projections,
 )
 
-#PDF conversion
+# Force light mode by injecting custom CSS
+st.markdown(
+    """
+    <style>
+    [data-testid="stToolbar"] {
+        display: none !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# PDF conversion
 def convert_df_to_pdf(df):
     """Convert dataframe to PDF using reportlab"""
     from reportlab.lib.pagesizes import letter
