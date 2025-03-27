@@ -150,20 +150,16 @@ if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 if 'username' not in st.session_state:
     st.session_state.username = None
-if 'selected_riding' not in st.session_state:  # Add this
-    st.session_state.selected_riding = None  # Add this
+if 'selected_riding' not in st.session_state:  
+    st.session_state.selected_riding = None  
 if 'trusted_firms' not in st.session_state:
     st.session_state.trusted_firms = []
 if 'poll_recency_weight' not in st.session_state:
     st.session_state.poll_recency_weight = 0.7
-if 'regional_adjustment' not in st.session_state:
-    st.session_state.regional_adjustment = 0.5
 if 'uncertainty_factor' not in st.session_state:
     st.session_state.uncertainty_factor = 1.0
 if 'show_confidence_intervals' not in st.session_state:
     st.session_state.show_confidence_intervals = True
-if 'decimal_places' not in st.session_state:
-    st.session_state.decimal_places = 1
 
 # Main app UI
 st.title("Ontario Election Predictor")
