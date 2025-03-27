@@ -881,11 +881,6 @@ if st.session_state.logged_in:
                                 min-height: 80px;
                                 box-shadow: 0 1px 2px rgba(0,0,0,0.1);
                                 cursor: pointer;
-                            " onclick="
-                                window.sessionStorage.setItem('selected_riding', '{riding['Riding']}');
-                                window.sessionStorage.setItem('page', 'Riding Analysis');
-                                window.location.reload();
-                            ">
                                 <p style="font-weight: bold; margin-bottom: 5px; font-size: 14px;">
                                     {riding['Riding']}
                                 </p>
@@ -909,7 +904,7 @@ if st.session_state.logged_in:
                     display_cols.append(share_col)
             
             table_data = filtered_ridings[display_cols].copy()
-            
+           
             # Format vote shares as percentages
             for party in ["PC", "NDP", "Liberal", "Green", "Other"]:
                 share_col = f"Predicted_{party}_Share"
