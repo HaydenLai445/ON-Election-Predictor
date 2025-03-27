@@ -20,6 +20,14 @@ from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from reportlab.lib import colors
 
+# Page configuration 
+st.set_page_config(
+    page_title="Ontario Election Predictor",
+    page_icon="🗳️",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
 # Local imports
 root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(root_path)
@@ -81,13 +89,6 @@ party_colors = {
     "Other": "#808080"   # Gray
 }
 
-# Page configuration (MUST be first Streamlit command)
-st.set_page_config(
-    page_title="Ontario Election Predictor",
-    page_icon="🗳️",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
 
 # Database functions
 def init_db():
@@ -861,7 +862,7 @@ if st.session_state.logged_in:
             filtered_ridings = filtered_ridings[filtered_ridings["Riding"].str.contains(search_term, case=False)]
         
         # Create tabs for different visualization options
-        tab1, tab2 = st.tabs(["Grid View", "Table View"])
+        tab1, tab2, tab3 = st.tabs(["Grid View", "Table View", "Competitive Ridings"])  # Added new tab
         
         with tab1:
             # Display ridings in a grid using predicted data
@@ -947,7 +948,80 @@ if st.session_state.logged_in:
                 height=500,
                 hide_index=True
             )
-    
+
+        with tab3:
+            st.subheader("Most Competitive Ridings")
+            
+            # Calculate competitiveness (difference between 1st and 2nd place)
+            competitive_data = []
+            for _, row in predicted_df.iterrows():
+                # Get all predicted shares
+                shares = {
+                    'PC': row.get('Predicted_PC_Share', 0),
+                    'NDP': row.get('Predicted_NDP_Share', 0),
+                    'Liberal': row.get('Predicted_Liberal_Share', 0),
+                    'Green': row.get('Predicted_Green_Share', 0),
+                    'Other': row.get('Predicted_Other_Share', 0)
+                }
+                
+                # Sort parties by vote share
+                sorted_parties = sorted(shares.items(), key=lambda x: x[1], reverse=True)
+                
+                # Calculate margin between 1st and 2nd place
+                if len(sorted_parties) >= 2:
+                    margin = (sorted_parties[0][1] - sorted_parties[1][1]) * 100  # Convert to percentage points
+                    competitive_data.append({
+                        'Riding': row['Riding'],
+                        'Leader': sorted_parties[0][0],
+                        'Leader_Share': sorted_parties[0][1] * 100,
+                        'Second': sorted_parties[1][0],
+                        'Second_Share': sorted_parties[1][1] * 100,
+                        'Margin': margin
+                    })
+            
+            # Create DataFrame and sort by margin (closest races first)
+            competitive_df = pd.DataFrame(competitive_data)
+            competitive_df = competitive_df.sort_values('Margin', ascending=True)
+            
+            # Show top 20 closest races
+            st.write("Top 20 Closest Ridings:")
+            st.dataframe(
+                competitive_df.head(20).style.format({
+                    'Leader_Share': '{:.1f}%',
+                    'Second_Share': '{:.1f}%',
+                    'Margin': '{:.1f}%'
+                }),
+                use_container_width=True,
+                hide_index=True,
+                column_config={
+                    'Riding': 'Riding',
+                    'Leader': st.column_config.TextColumn('Leading Party'),
+                    'Leader_Share': st.column_config.NumberColumn('Leader %'),
+                    'Second': st.column_config.TextColumn('2nd Place'),
+                    'Second_Share': st.column_config.NumberColumn('2nd Place %'),
+                    'Margin': st.column_config.NumberColumn('Margin')
+                }
+            )
+            
+            # Visualize distribution of competitiveness
+            st.subheader("Competitiveness Distribution")
+            
+            fig = px.histogram(
+                competitive_df,
+                x='Margin',
+                nbins=20,
+                title='Distribution of Victory Margins Across All Ridings',
+                labels={'Margin': 'Victory Margin (percentage points)'}
+            )
+            
+            # Add vertical lines for reference
+            fig.add_vline(x=5, line_dash="dash", line_color="orange", 
+                         annotation_text="5% margin", annotation_position="top")
+            fig.add_vline(x=10, line_dash="dash", line_color="red", 
+                         annotation_text="10% margin", annotation_position="top")
+            
+            st.plotly_chart(fig, use_container_width=True)
+
     # Methodology page
     elif page == "Methodology":
         st.title("Ontario Election Predictor Methodology")
