@@ -19,6 +19,12 @@ import io
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from reportlab.lib import colors
+from streamlit import config
+
+config.set_option("theme.base", "light")
+config.set_option("theme.primaryColor", "#0068c9")
+config.set_option("theme.secondaryBackgroundColor", "#f0f2f6")
+config.set_option("theme.textColor", "#262730")
 
 # Page configuration 
 st.set_page_config(
@@ -34,18 +40,6 @@ sys.path.append(root_path)
 from scripts.load_data import (
     recalculate_polling_average, 
     update_projections,
-)
-
-# Force light mode by injecting custom CSS
-st.markdown(
-    """
-    <style>
-    [data-testid="stToolbar"] {
-        display: none !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
 )
 
 # PDF conversion
