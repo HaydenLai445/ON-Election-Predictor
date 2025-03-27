@@ -1,6 +1,6 @@
 import joblib
 import pandas as pd
-from sklearn.dummy import DummyRegressor
+from sklearn.ensemble import RandomForestRegressor 
 
 # Load your election data (update paths if needed)
 df_2018 = pd.read_csv("data/election_data_2018.csv")
@@ -22,15 +22,24 @@ df_swings["Swing_Liberal"] = df_swings["Liberal_Share_2022"] - df_swings["Libera
 df_swings["Swing_Green"] = df_swings["Green_Share_2022"] - df_swings["Green_Share_2018"]
 df_swings["Swing_Other"] = df_swings["Other_Share_2022"] - df_swings["Other_Share_2018"]
 
-# Create and FIT dummy models (key change!)
+# Define features (all historical shares)
+features = [
+    "PC_Share_2018", 
+    "NDP_Share_2018", 
+    "Liberal_Share_2018", 
+    "Green_Share_2018", 
+    "Other_Share_2018"
+]
+
+# Create and FIT Random Forest models (key change!)
 models = {
-    "Swing_PC": DummyRegressor(strategy="mean").fit(df_swings[["PC_Share_2018"]], df_swings["Swing_PC"]),
-    "Swing_NDP": DummyRegressor(strategy="mean").fit(df_swings[["NDP_Share_2018"]], df_swings["Swing_NDP"]),
-    "Swing_Liberal": DummyRegressor(strategy="mean").fit(df_swings[["Liberal_Share_2018"]], df_swings["Swing_Liberal"]),
-    "Swing_Green": DummyRegressor(strategy="mean").fit(df_swings[["Green_Share_2018"]], df_swings["Swing_Green"]),
-    "Swing_Other": DummyRegressor(strategy="mean").fit(df_swings[["Other_Share_2018"]], df_swings["Swing_Other"])
+    "Swing_PC": RandomForestRegressor(n_estimators=100, random_state=42).fit(df_swings[features], df_swings["Swing_PC"]),
+    "Swing_NDP": RandomForestRegressor(n_estimators=100, random_state=42).fit(df_swings[features], df_swings["Swing_NDP"]),
+    "Swing_Liberal": RandomForestRegressor(n_estimators=100, random_state=42).fit(df_swings[features], df_swings["Swing_Liberal"]),
+    "Swing_Green": RandomForestRegressor(n_estimators=100, random_state=42).fit(df_swings[features], df_swings["Swing_Green"]),
+    "Swing_Other": RandomForestRegressor(n_estimators=100, random_state=42).fit(df_swings[features], df_swings["Swing_Other"])
 }
 
-# Save
+# Save models
 joblib.dump(models, "models/trained_models.joblib")
-print("✅ Created and FITTED fallback models")
+print("✅ Created and FITTED Random Forest models") 

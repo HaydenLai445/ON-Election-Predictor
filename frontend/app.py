@@ -160,16 +160,14 @@ if 'uncertainty_factor' not in st.session_state:
     st.session_state.uncertainty_factor = 1.0
 if 'show_confidence_intervals' not in st.session_state:
     st.session_state.show_confidence_intervals = True
+if 'projections' not in st.session_state:
+    st.session_state.projections = None
 
 # Main app UI
 st.title("Ontario Election Predictor")
 st.markdown("""
 This application uses machine learning to predict outcomes for the upcoming Ontario provincial election.
 """)
-
-# Add projections to session state initialization (around line 130)
-if 'projections' not in st.session_state:
-    st.session_state.projections = None
 
 # Sidebar - Navigation and Authentication
 with st.sidebar:
@@ -356,7 +354,7 @@ if st.session_state.logged_in:
         models_path = os.path.join(root_path, 'models', 'trained_models.joblib')
         
         try:
-            # Load pre-trained models if they exist
+            # Load pre-trained models
             if os.path.exists(models_path):
                 st.session_state.models = joblib.load(models_path)
                 print("Models loaded successfully from:", models_path)
